@@ -165,21 +165,19 @@ class BTSolver:
                 The LCV is first and the MCV is last
     """
     def getValuesLCVOrder ( self, v ):
-        leastConstrainingValues = set()
+        leastConstrainingValues = dict()
         
         if not v.isAssigned(): # check if v is assigned
-            
-            neighboring = self.network.getNeighborsOfVariable(v)
-            for n in neighboring:
-                lastSize = 9999
-                # need code to assign some value to v, check domain sizes of n
-                # CODE HERE
-                if n.size() > lastSize:
-                    lastSize = n # probably need to move this somewhere else or even trash it
-                    leastConstrainingValues.add(n)#push n
+            for n in v.getDomain():
+                sum = 0
+                #"test" some variable assignment n in domain
+                for n2 in self.network.getNeighborsOfVariable(v):
+                    sum += n2.size()
+                
+                leastConstrainingValues.update({n:sum})
             
         
-        return sorted(list(leastConstrainingValues), reverse=true)
+        return sorted(list(leastConstrainingValues.keys()), reverse=true)
 
     """
          Optional TODO: Implement your own advanced Value Heuristic
