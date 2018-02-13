@@ -51,12 +51,15 @@ class BTSolver:
         #       if neighbor contains value of assigned variable
         #           remove from domain
         #   if all neighbors remove value return true, else false
-        neighboring = network.getNeighborsofVariable(trail.trailStack[0]); #trailStack[0] is most recently assigned
+        recentAssignment = self.trail.trailStack[self.trail.size() - 1][0] #recentAssignment is most recently assigned
+        neighboring = self.network.getNeighborsOfVariable(recentAssignment) 
         
         for n in neighboring: # n = Constraint, neighboring = list of constraints
-            #something
+            if recentAssignment in self.network.getConstraintsContainingVariable(n): #check if neighbor contains value of assigned variable
+                n.removeValueFromDomain(recentAssignment) #remove from domain
+            #according to piazza we have to use getModifiedConstraints() and above trail.push? 
             
-        return assignmentsCheck( self ) #check consistency of network
+        return self.assignmentsCheck() #c) #check consistency of network
 
     """
         Part 2 TODO: Implement both of Norvig's Heuristics
@@ -104,7 +107,7 @@ class BTSolver:
         Return: The unassigned variable with the smallest domain
     """
     def getMRV ( self ):
-        smallest = sys.maxsize
+        smallest = 9999
         vMRV = None
         
         for v in self.network.variables:
@@ -165,9 +168,9 @@ class BTSolver:
         
         if not v.isAssigned(): # check if v is assigned
             
-            neighboring = network.getNeighborsOfVariable(v)
+            neighboring = self.network.getNeighborsOfVariable(v)
             for n in neighboring:
-                lastSize = sys.maxsize
+                lastSize = 9999
                 # need code to assign some value to v, check domain sizes of n
                 # CODE HERE
                 if n.size() > lastSize:
