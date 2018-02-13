@@ -54,9 +54,10 @@ class BTSolver:
         recentAssignment = self.trail.trailStack[self.trail.size() - 1][0] #recentAssignment is most recently assigned
         neighboring = self.network.getNeighborsOfVariable(recentAssignment) 
         
-        for n in neighboring: # n = Constraint, neighboring = list of constraints
-            if recentAssignment in self.network.getConstraintsContainingVariable(n): #check if neighbor contains value of assigned variable
-                n.removeValueFromDomain(recentAssignment) #remove from domain
+        for variable in neighboring: # n = Constraint (i think this should be variable), neighboring = list of constraints(variables) 
+            for constraints in self.network.getConstraintsContainingVariable(variable):
+                if constraints.contains(recentAssignment): #check if neighbor contains value of assigned variable
+                    variable.removeValueFromDomain(recentAssignment) #remove from domain
             #according to piazza we have to use getModifiedConstraints() and above trail.push? 
             
         return self.assignmentsCheck() #c) #check consistency of network
