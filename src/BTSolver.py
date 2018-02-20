@@ -168,16 +168,16 @@ class BTSolver:
         leastConstrainingValues = dict()
         
         if not v.isAssigned(): # check if v is assigned
-            for n in v.getDomain():
+            for n in v.getValues(): #get each value within domain
                 sum = 0
                 #"test" some variable assignment n in domain
                 for n2 in self.network.getNeighborsOfVariable(v):
-                    sum += n2.size()
+                    if n2.contains(n): #check if domain value in surrounding variable domain
+                        sum += 1 
                 
                 leastConstrainingValues.update({n:sum})
-            
         
-        return sorted(list(leastConstrainingValues.keys()), reverse=true)
+        return sorted(leastConstrainingValues) #returns sorted key (domain value) from least to greatest sum
 
     """
          Optional TODO: Implement your own advanced Value Heuristic
