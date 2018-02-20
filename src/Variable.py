@@ -48,7 +48,7 @@ class Variable:
         return self.size() == 1
 
     def isModified ( self ):
-        return modified
+        return self.modified
 
     def size ( self ):
         return self.domain.size()
@@ -74,9 +74,6 @@ class Variable:
     # ==================================================================
 
     def setModified ( self, mod ):
-        if not changeable:
-            return
-
         self.modified = mod
         self.domain.modified = mod
 

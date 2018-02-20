@@ -62,7 +62,7 @@ class Domain:
             return False
 
     # Sets the modified flag
-    def setModified ( modified ):
+    def setModified ( self, modified ):
         self.modified = modified
 
     # ==================================================================
