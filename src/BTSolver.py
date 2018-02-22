@@ -172,7 +172,7 @@ class BTSolver:
                 sum = 0
                 #"test" some variable assignment n in domain
                 for n2 in self.network.getNeighborsOfVariable(v):
-                    if n2.contains(n): #check if domain value in surrounding variable domain
+                    if n2.domain.contains(n): #check if domain value in surrounding variable domain
                         sum += 1 
                 
                 leastConstrainingValues.update({n:sum})
