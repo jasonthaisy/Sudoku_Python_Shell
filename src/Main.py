@@ -57,7 +57,7 @@ def main ( ):
         sudokudata = SudokuBoard.SudokuBoard( 3, 3, 7 )
         print(sudokudata)
 
-        solver = BTSolver.BTSolver( sudokudata, trail, val_sh, var_sh, cc )
+        solver = BTSolver.BTSolver( sudokudata, trail, val_sh, var_sh, cc)
         solver.solve()
 
         if solver.hassolution:

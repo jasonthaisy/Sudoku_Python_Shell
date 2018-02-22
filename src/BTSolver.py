@@ -46,6 +46,7 @@ class BTSolver:
         Return: true is assignment is consistent, false otherwise
     """
     def forwardChecking ( self ):
+        """
         #if variable is assigned value
         #   check surrounding neighbors
         #       if neighbor contains value of assigned variable
@@ -61,7 +62,19 @@ class BTSolver:
             #according to piazza we have to use getModifiedConstraints() and above trail.push? 
             
         return self.assignmentsCheck() #c) #check consistency of network
-
+        """
+        for v in self.network.variables:
+            if v.isAssigned():
+        #v = self.trail.trailStack[self.trail.size() - 1][0] #recentAssignment is most recently assigned
+                for v2 in self.network.getNeighborsOfVariable(v):
+                    if v.getAssignment() == v2.getAssignment():
+                        return False
+                    if v.getAssignment() in v2.getValues():
+                        self.trail.push(v2)
+                        v2.removeValueFromDomain(v.getAssignment())
+                    if (v2.size() == 0):
+                        return False
+        return True
     """
         Part 2 TODO: Implement both of Norvig's Heuristics
 
@@ -113,7 +126,7 @@ class BTSolver:
         
         for v in self.network.variables:
             if not v.isAssigned():
-                if v.size() <= smallest:
+                if v.size() < smallest:
                     smallest = v.size()
                     vMRV = v
             
