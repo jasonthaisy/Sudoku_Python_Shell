@@ -126,9 +126,16 @@ class BTSolver:
         
         for v in self.network.variables:
             if not v.isAssigned():
-                if v.size() < smallest:
-                    smallest = v.size()
-                    vMRV = v
+                count = 0
+                for v2 in self.network.getNeighborsOfVariable(v):
+                    if v2.isAssigned():
+                        count+=1
+                    if count < smallest:
+                        smallest = count
+                        vMRV = v
+                    #if v.size() < smallest:
+                     #   smallest = v.size()
+                      #  vMRV = v
             
         return vMRV
 
@@ -138,7 +145,19 @@ class BTSolver:
         Return: The unassigned variable with the most unassigned neighbors
     """
     def getDegree ( self ):
-        return None
+        dhVariable = None
+        maxUnassigned = 0
+        for v in self.network.variables:
+            if not v.isAssigned():
+                numUnassigned = 0
+                for v2 in self.network.getNeighborsOfVariable(v):
+                    if not v2.isAssigned():
+                        numUnassigned += 1
+                if numUnassigned > maxUnassigned:
+                    maxUnassigned = numUnassigned
+                    dhVariable = v
+                                
+        return dhVariable
 
     """
         Part 2 TODO: Implement the Minimum Remaining Value Heuristic
@@ -148,7 +167,48 @@ class BTSolver:
                 and, second, the most unassigned neighbors
     """
     def MRVwithTieBreaker ( self ):
-        return None
+        
+        vMRV = []
+        smallest = 9999
+        for v in self.network.variables:
+            if not v.isAssigned():
+                count = 0
+                for v2 in self.network.getNeighborsOfVariable(v):
+                    if v2.isAssigned():
+                        count += 1
+                if count < smallest:
+                    smallest = count
+                    vMRV.append((v, count))
+
+        vMRV.sort(key = lambda smallest: smallest[1])
+    
+        count = 0
+        smallestMRV = []
+        for v in vMRV:
+            if count == 0:
+                smallest = v
+                smallestMRV.append(v)
+                count += 1
+            elif smallest[1] == v[1]:
+                smallestMRV.append(v)
+            else:
+                break
+            
+        dhVariable = []
+        maxUnassigned = 0
+        for v in smallestMRV:
+            numUnassigned = 0
+            for v2 in self.network.getNeighborsOfVariable(v[0]):
+                if not v2.isAssigned():
+                    numUnassigned += 1
+            if numUnassigned > maxUnassigned:
+                maxUnassigned = numUnassigned
+                dhVariable.append((v[0], numUnassigned))
+                
+        dhVariable.sort(key = lambda mostUnassigned: mostUnassigned[1], reverse = True)
+        #print(dhVariable[0][0])
+        
+        return dhVariable[0][0]           
 
     """
          Optional TODO: Implement your own advanced Variable Heuristic
