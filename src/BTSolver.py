@@ -91,7 +91,24 @@ class BTSolver:
         Return: true is assignment is consistent, false otherwise
     """
     def norvigCheck ( self ):
-        return False
+        #first strategy: if a variable is assigned, then eliminate that value from the square's neighbors
+        
+        #second: if a constraint has only one possible place for a value then put the value there.
+        p = self.gameboard.p #rows
+        q = self.gameboard.q #cols
+        b = self.gameboard.p * self.gameboard.q #blocks
+        counter = [none] * (p*q*b) #allocate array counter[N], N = p*q*m (not sure?)
+        for unit in self.gameboard.board: #for each unit in {rows, cols, blocks}
+            #zero counter
+            #for I from 1 to N
+                #for each Value in DUnit[I]
+                    #Increment Counter[Value]
+            #for I from 1 to N
+                #If (Counter[I] = 1):
+                    #Find the one domain in Unit
+                    #that has I for a possible value,
+                    #and set that cell to I
+        return self.assignmentsCheck() # check consistency of the network after constraint propagation
 
     """
          Optional TODO: Implement your own advanced Constraint Propagation
@@ -126,16 +143,9 @@ class BTSolver:
         
         for v in self.network.variables:
             if not v.isAssigned():
-                count = 0
-                for v2 in self.network.getNeighborsOfVariable(v):
-                    if v2.isAssigned():
-                        count+=1
-                    if count < smallest:
-                        smallest = count
-                        vMRV = v
-                    #if v.size() < smallest:
-                     #   smallest = v.size()
-                      #  vMRV = v
+                if v.size() < smallest:
+                    smallest = v.size()
+                    vMRV = v
             
         return vMRV
 
