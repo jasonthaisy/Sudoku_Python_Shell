@@ -98,15 +98,16 @@ class BTSolver:
         for constraint in self.network.getConstraints(): #for each unit in {rows, cols, blocks}
             #Zero Counter--already done pre-iteration
             for var in constraint.vars:
-                for value in var.getDomain():
-                    counter[var.getAssignment()] += 1
-            for var in constraint.vars:
-                if counter[var.getAssignment()] == 1:
+                for value in var.getValues():
+                    counter[var.getAssignment()-1] += 1
+            #for var in constraint.vars:
+                #if counter[var.getAssignment()-1] == 1:
                      #If (Counter[I] = 1):
 #                    #Find the one domain in Unit
 #                    #that has I for a possible value,
 #                    #and set that cell to I
-
+            #print("next block...")
+            
         return self.assignmentsCheck()
 
     """
