@@ -22,7 +22,7 @@ def main ( ):
     file   = "";
     var_sh = "MRVwithTieBreaker";
     val_sh = "LeastConstrainingValue";
-    cc     = "forwardChecking";
+    cc     = "norvigCheck";
 
     for arg in [args[i] for i in range(1, len(args))]:
         if arg == "MRV":
