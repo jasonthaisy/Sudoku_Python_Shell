@@ -114,8 +114,6 @@ class BTSolver:
                         if var.getDomain().contains(i+1):
                             self.trail.push(var)
                             var.assignValue(i+1)
-                            #var.removeValueFromDomain(i+1)
-            #print("next block...")
             
         return self.assignmentsCheck()
 
@@ -152,7 +150,7 @@ class BTSolver:
         
         for v in self.network.variables:
             if not v.isAssigned():
-                if v.size() < smallest:
+                if v.size() < smallest or vMRV == None:
                     smallest = v.size()
                     vMRV = v
             
@@ -166,25 +164,19 @@ class BTSolver:
     def getDegree ( self ):
         dhVariable = None
         maxUnassigned = -1
+        
         for v in self.network.variables:
             if not v.isAssigned():
                 cc = self.network.getConstraintsContainingVariable(v)
                 degC = []
                 for constraint in cc:
                     varsC = constraint.vars
-                    for item in varsC:
-                        if not item.isAssigned():
-                            degC.append(item)
+                    for v2 in varsC:
+                        if not v2.isAssigned():
+                            degC.append(v2)
                 if len(degC) > maxUnassigned:
                     dhVariable = v
                     maxUnassigned = len(degC)
-#                numUnassigned = 0
-#                for v2 in self.network.getNeighborsOfVariable(v):
-#                    if not v2.isAssigned():
-#                        numUnassigned += 1
-#                if numUnassigned > maxUnassigned:
-#                    maxUnassigned = numUnassigned
-#                    dhVariable = v
                                 
         return dhVariable
 
@@ -212,9 +204,9 @@ class BTSolver:
                             degC = []
                             for constraint in cc:
                                 varsC = constraint.vars
-                                for item in varsC:
-                                    if not item.isAssigned():
-                                        degC.append(item)
+                                for v2 in varsC:
+                                    if not v2.isAssigned():
+                                        degC.append(v2)
                             if len(degC) > largest:
                                 maxV = var
                                 maxSize = len(degC)
