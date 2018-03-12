@@ -92,23 +92,27 @@ class BTSolver:
     """
     def norvigCheck ( self ):
         #first strategy: if a variable is assigned, then eliminate that value from the square's neighbors
-        
+        for v in self.network.variables:
+            if v.isAssigned():
+                self.trail.push(v)
+                for v2 in self.network.getNeighborsOfVariable(v):
+                    v2.removeValueFromDomain(v)
+                    if v2.size() == 0:
+                        return False
         #second: if a constraint has only one possible place for a value then put the value there.
-        counter = [0] * self.gameboard.N #allocate array counter[N]
         for constraint in self.network.getConstraints(): #for each unit in {rows, cols, blocks}
-            #Zero Counter--already done pre-iteration
-            for var in constraint.vars:
-                for value in var.getValues():
-                    counter[var.getAssignment()-1] += 1
-            #for var in constraint.vars:
-                #if counter[var.getAssignment()-1] == 1:
-                     #If (Counter[I] = 1):
-#                    #Find the one domain in Unit
-#                    #that has I for a possible value,
-#                    #and set that cell to I
+            counter = [0 for i in range(self.gameboard.N)]
+            for i in range(self.gameboard.N):
+                for value in constraint.vars[i].getValues():
+                    counter[value-1] += 1
+            for i in range(self.gameboard.N):
+                if counter[i] == 1:
+                    for var in constraint.vars:
+                        if var.getDomain().contains(i+1):
+                            var.assignValue(i+1)
             #print("next block...")
             
-        return self.assignmentsCheck()
+        return True
 
     """
          Optional TODO: Implement your own advanced Constraint Propagation
