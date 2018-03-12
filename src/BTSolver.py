@@ -94,21 +94,20 @@ class BTSolver:
         #first strategy: if a variable is assigned, then eliminate that value from the square's neighbors
         
         #second: if a constraint has only one possible place for a value then put the value there.
-        p = self.gameboard.p #rows
-        q = self.gameboard.q #cols
-        b = self.gameboard.p * self.gameboard.q #blocks
-        counter = [none] * (p*q*b) #allocate array counter[N], N = p*q*m (not sure?)
-        for unit in self.gameboard.board: #for each unit in {rows, cols, blocks}
-            #zero counter
-            #for I from 1 to N
-                #for each Value in DUnit[I]
-                    #Increment Counter[Value]
-            #for I from 1 to N
-                #If (Counter[I] = 1):
-                    #Find the one domain in Unit
-                    #that has I for a possible value,
-                    #and set that cell to I
-        return self.assignmentsCheck() # check consistency of the network after constraint propagation
+        counter = [0] * self.gameboard.N #allocate array counter[N]
+        for constraint in self.network.getConstraints(): #for each unit in {rows, cols, blocks}
+            #Zero Counter--already done pre-iteration
+            for var in constraint.vars:
+                for value in var.getDomain():
+                    counter[var.getAssignment()] += 1
+            for var in constraint.vars:
+                if counter[var.getAssignment()] == 1:
+                     #If (Counter[I] = 1):
+#                    #Find the one domain in Unit
+#                    #that has I for a possible value,
+#                    #and set that cell to I
+
+        return self.assignmentsCheck()
 
     """
          Optional TODO: Implement your own advanced Constraint Propagation
@@ -156,16 +155,26 @@ class BTSolver:
     """
     def getDegree ( self ):
         dhVariable = None
-        maxUnassigned = 0
+        maxUnassigned = -1
         for v in self.network.variables:
             if not v.isAssigned():
-                numUnassigned = 0
-                for v2 in self.network.getNeighborsOfVariable(v):
-                    if not v2.isAssigned():
-                        numUnassigned += 1
-                if numUnassigned > maxUnassigned:
-                    maxUnassigned = numUnassigned
+                cc = self.network.getConstraintsContainingVariable(v)
+                degC = []
+                for constraint in cc:
+                    varsC = constraint.vars
+                    for item in varsC:
+                        if not item.isAssigned():
+                            degC.append(item)
+                if len(degC) > maxUnassigned:
                     dhVariable = v
+                    maxUnassigned = len(degC)
+#                numUnassigned = 0
+#                for v2 in self.network.getNeighborsOfVariable(v):
+#                    if not v2.isAssigned():
+#                        numUnassigned += 1
+#                if numUnassigned > maxUnassigned:
+#                    maxUnassigned = numUnassigned
+#                    dhVariable = v
                                 
         return dhVariable
 
@@ -178,47 +187,34 @@ class BTSolver:
     """
     def MRVwithTieBreaker ( self ):
         
-        vMRV = []
+        vMRV = None
         smallest = 9999
+
         for v in self.network.variables:
             if not v.isAssigned():
-                count = 0
-                for v2 in self.network.getNeighborsOfVariable(v):
-                    if v2.isAssigned():
-                        count += 1
-                if count < smallest:
-                    smallest = count
-                    vMRV.append((v, count))
-
-        vMRV.sort(key = lambda smallest: smallest[1])
-    
-        count = 0
-        smallestMRV = []
-        for v in vMRV:
-            if count == 0:
-                smallest = v
-                smallestMRV.append(v)
-                count += 1
-            elif smallest[1] == v[1]:
-                smallestMRV.append(v)
-            else:
-                break
-            
-        dhVariable = []
-        maxUnassigned = 0
-        for v in smallestMRV:
-            numUnassigned = 0
-            for v2 in self.network.getNeighborsOfVariable(v[0]):
-                if not v2.isAssigned():
-                    numUnassigned += 1
-            if numUnassigned > maxUnassigned:
-                maxUnassigned = numUnassigned
-                dhVariable.append((v[0], numUnassigned))
-                
-        dhVariable.sort(key = lambda mostUnassigned: mostUnassigned[1], reverse = True)
-        #print(dhVariable[0][0])
-        
-        return dhVariable[0][0]           
+                if v.size() <= smallest or vMRV == None:
+                    if v.size() == smallest:
+                        tb = [v, vMRV]
+                        maxV = None
+                        largest = -1
+                        for var in tb:
+                            cc = self.network.getConstraintsContainingVariable(var)
+                            degC = []
+                            for constraint in cc:
+                                varsC = constraint.vars
+                                for item in varsC:
+                                    if not item.isAssigned():
+                                        degC.append(item)
+                            if len(degC) > largest:
+                                maxV = var
+                                maxSize = len(degC)
+                        vMRV = maxV
+                        smallest = maxSize
+                    else:
+                        vMRV = v
+                        smallest = v.size()
+                    
+        return vMRV         
 
     """
          Optional TODO: Implement your own advanced Variable Heuristic
