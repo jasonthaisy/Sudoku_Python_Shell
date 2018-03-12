@@ -94,9 +94,12 @@ class BTSolver:
         #first strategy: if a variable is assigned, then eliminate that value from the square's neighbors
         for v in self.network.variables:
             if v.isAssigned():
-                self.trail.push(v)
                 for v2 in self.network.getNeighborsOfVariable(v):
-                    v2.removeValueFromDomain(v)
+                    if v.getAssignment() == v2.getAssignment():
+                        return False
+                    if v.getAssignment() in v2.getValues():
+                        self.trail.push(v2)
+                        v2.removeValueFromDomain(v.getAssignment())
                     if v2.size() == 0:
                         return False
         #second: if a constraint has only one possible place for a value then put the value there.
@@ -109,10 +112,12 @@ class BTSolver:
                 if counter[i] == 1:
                     for var in constraint.vars:
                         if var.getDomain().contains(i+1):
+                            self.trail.push(var)
                             var.assignValue(i+1)
+                            #var.removeValueFromDomain(i+1)
             #print("next block...")
             
-        return True
+        return self.assignmentsCheck()
 
     """
          Optional TODO: Implement your own advanced Constraint Propagation
