@@ -20,9 +20,9 @@ def main ( ):
 
     # Important Variables
     file   = "";
-    var_sh = "MRVwithTieBreaker";
-    val_sh = "LeastConstrainingValue";
-    cc     = "norvigCheck";
+    var_sh = "";
+    val_sh = "";
+    cc     = "";
 
     for arg in [args[i] for i in range(1, len(args))]:
         if arg == "MRV":

@@ -46,23 +46,6 @@ class BTSolver:
         Return: true is assignment is consistent, false otherwise
     """
     def forwardChecking ( self ):
-        """
-        #if variable is assigned value
-        #   check surrounding neighbors
-        #       if neighbor contains value of assigned variable
-        #           remove from domain
-        #   if all neighbors remove value return true, else false
-        recentAssignment = self.trail.trailStack[self.trail.size() - 1][0] #recentAssignment is most recently assigned
-        neighboring = self.network.getNeighborsOfVariable(recentAssignment) 
-        
-        for variable in neighboring: # n = Constraint (i think this should be variable), neighboring = list of constraints(variables) 
-            for constraints in self.network.getConstraintsContainingVariable(variable):
-                if constraints.contains(recentAssignment): #check if neighbor contains value of assigned variable
-                    variable.removeValueFromDomain(recentAssignment) #remove from domain
-            #according to piazza we have to use getModifiedConstraints() and above trail.push? 
-            
-        return self.assignmentsCheck() #c) #check consistency of network
-        """
         for v in self.network.variables:
             if v.isAssigned():
         #v = self.trail.trailStack[self.trail.size() - 1][0] #recentAssignment is most recently assigned
@@ -75,6 +58,7 @@ class BTSolver:
                     if (v2.size() == 0):
                         return False
         return True
+    
     """
         Part 2 TODO: Implement both of Norvig's Heuristics
 
@@ -124,7 +108,31 @@ class BTSolver:
          your program into a tournament.
      """
     def getTournCC ( self ):
-        return None
+        #first strategy: if a variable is assigned, then eliminate that value from the square's neighbors
+        for v in self.network.variables:
+            if v.isAssigned():
+                for v2 in self.network.getNeighborsOfVariable(v):
+                    if v.getAssignment() == v2.getAssignment():
+                        return False
+                    if v.getAssignment() in v2.getValues():
+                        self.trail.push(v2)
+                        v2.removeValueFromDomain(v.getAssignment())
+                    if v2.size() == 0:
+                        return False
+        #second: if a constraint has only one possible place for a value then put the value there.
+        for constraint in self.network.getConstraints(): #for each unit in {rows, cols, blocks}
+            counter = [0 for i in range(self.gameboard.N)]
+            for i in range(self.gameboard.N):
+                for value in constraint.vars[i].getValues():
+                    counter[value-1] += 1
+            for i in range(self.gameboard.N):
+                if counter[i] == 1:
+                    for var in constraint.vars:
+                        if var.getDomain().contains(i+1):
+                            self.trail.push(var)
+                            var.assignValue(i+1)
+            
+        return self.assignmentsCheck()
 
     # ==================================================================
     # Variable Selectors
@@ -188,7 +196,6 @@ class BTSolver:
                 and, second, the most unassigned neighbors
     """
     def MRVwithTieBreaker ( self ):
-        
         vMRV = None
         smallest = 9999
 
@@ -225,7 +232,16 @@ class BTSolver:
          your program into a tournament.
      """
     def getTournVar ( self ):
-        return None
+        smallest = 9999
+        vMRV = None
+        
+        for v in self.network.variables:
+            if not v.isAssigned():
+                if v.size() < smallest or vMRV == None:
+                    smallest = v.size()
+                    vMRV = v
+            
+        return vMRV
 
     # ==================================================================
     # Value Selectors
@@ -267,7 +283,19 @@ class BTSolver:
          your program into a tournament.
      """
     def getTournVal ( self, v ):
-        return None
+        leastConstrainingValues = dict()
+        
+        if not v.isAssigned(): # check if v is assigned
+            for n in v.getValues(): #get each value within domain
+                sum = 0
+                #"test" some variable assignment n in domain
+                for n2 in self.network.getNeighborsOfVariable(v):
+                    if n2.domain.contains(n): #check if domain value in surrounding variable domain
+                        sum += 1 
+                
+                leastConstrainingValues.update({n:sum})
+        
+        return sorted(leastConstrainingValues) #returns sorted key (domain value) from least to greatest sum
 
     # ==================================================================
     # Engine Functions
