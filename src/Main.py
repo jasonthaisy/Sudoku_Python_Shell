@@ -22,7 +22,7 @@ def main ( ):
     file   = "";
     var_sh = "";
     val_sh = "";
-    cc     = "";
+    cc     = "forwardChecking";
 
     for arg in [args[i] for i in range(1, len(args))]:
         if arg == "MRV":
@@ -54,7 +54,7 @@ def main ( ):
     trail = Trail.Trail();
 
     if file == "":
-        sudokudata = SudokuBoard.SudokuBoard( 3, 3, 7 )
+        sudokudata = SudokuBoard.SudokuBoard( 3, 3, 15 )
         print(sudokudata)
 
         solver = BTSolver.BTSolver( sudokudata, trail, val_sh, var_sh, cc)
